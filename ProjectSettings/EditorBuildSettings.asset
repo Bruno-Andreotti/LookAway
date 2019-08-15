@@ -5,7 +5,19 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Scenes/Menu.unity
+    guid: 7cac34eb717b4ce45825504d0325f41c
+  - enabled: 1
+    path: Assets/Scenes/Land.unity
+    guid: 3b2d9b2ef899e1b4aadd99ec3d5ed22e
+  - enabled: 1
+    path: Assets/Scenes/CidadenoGelo.unity
+    guid: b3c3dce549374ba4cada2ae3a0eeec53
+  - enabled: 1
+    path: Assets/Scenes/CidadeBase.unity
+    guid: ed707a4bf8b071a41aafb4aa00aba32b
   m_configObjects: {}
