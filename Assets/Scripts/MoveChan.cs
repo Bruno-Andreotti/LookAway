@@ -10,25 +10,37 @@ public class MoveChan : MonoBehaviour
     public GameObject currentCamera;
     public float jumpspeed = 8;
     public float gravity = 20;
+
     float yresult;
+    float flyvelocity = 3;
     public GameObject wing;
     public Transform rightHandObj, leftHandObj;
+    bool jumpbtn = false;
+    bool jumpbtnrelease = false;
     // Start is called before the first frame update
     void Start()
     {
         currentCamera = Camera.main.gameObject;
     }
+    private void Update()
+    {
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpbtn = true;
+        }
+    }
 
     void FixedUpdate()
     {
 
-        movaxis = new Vector3(Input.GetAxis("Horizontal")*0.3f, 0, Input.GetAxis("Vertical"));
+        movaxis = new Vector3(Input.GetAxis("Horizontal") * 0.3f, 0, Input.GetAxis("Vertical"));
 
         if (wing.activeSelf)
         {
-           
-            yresult = -Time.fixedDeltaTime*10;
-            movaxis = Vector3.forward * 3 ;
+
+            yresult = -1;
+
+
         }
         else
         {
@@ -42,16 +54,28 @@ public class MoveChan : MonoBehaviour
         Vector3 relativeDirectionWOy = relativedirection;
         relativeDirectionWOy = new Vector3(relativedirection.x, 0, relativedirection.z);
 
-       
+
 
         anim.SetFloat("Speed", charctrl.velocity.magnitude);
         if (wing.activeSelf)
         {
-            Vector3 movfly = new Vector3(movaxis.x, yresult, movaxis.z);
+
+            Vector3 movfly = new Vector3(Vector3.forward.x * flyvelocity, yresult - (flyvelocity - 3), Vector3.forward.z * flyvelocity);
             charctrl.Move(transform.TransformVector(movfly) * 0.1f);
 
 
-          
+            float angz = Vector3.Dot(transform.right, Vector3.up);
+            float angx = Vector3.Dot(transform.forward, Vector3.up);
+            movfly = new Vector3(movaxis.z + angx * 2, -angz, -movaxis.x - angz);
+
+            transform.Rotate(movfly);
+
+            wing.transform.localRotation = Quaternion.Euler(0, 0, angz * 100);
+
+
+            flyvelocity -= angx * 0.01f;
+            flyvelocity = Mathf.Lerp(flyvelocity, 3, Time.fixedDeltaTime);
+            flyvelocity = Mathf.Clamp(flyvelocity, 0, 5);
         }
         else
         {
@@ -64,7 +88,7 @@ public class MoveChan : MonoBehaviour
             anim.SetTrigger("PunchA");
         }
 
-        if (charctrl.isGrounded && Input.GetButton("Jump"))
+        if (charctrl.isGrounded && jumpbtn)
         {
             anim.SetTrigger("Jump");
             yresult = jumpspeed;
@@ -74,31 +98,34 @@ public class MoveChan : MonoBehaviour
         if (charctrl.isGrounded)
         {
             wing.SetActive(false);
-            
+
         }
-        
+
 
 
 
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down,out hit, 100))
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1000))
         {
             anim.SetFloat("JumpHeight", hit.distance);
-            if(hit.distance>0.2f && Input.GetButtonDown("Jump")&& !wing.activeSelf)
+            if (hit.distance > 0.2f && jumpbtn && !wing.activeSelf)
             {
                 wing.SetActive(true);
                 yresult = .1f;
+                flyvelocity = 3;
+                jumpbtn = false;
                 return;
             }
-            if (hit.distance > 0.2f && Input.GetButtonDown("Jump") && wing.activeSelf)
+            if (hit.distance > 0.2f && jumpbtn && wing.activeSelf)
             {
                 wing.SetActive(false);
+                jumpbtn = false;
             }
 
         }
+        jumpbtn = false;
 
-        
-       
+
 
     }
 
@@ -108,8 +135,6 @@ public class MoveChan : MonoBehaviour
     {
         if (wing.activeSelf)
         {
-            
-
 
             if (rightHandObj != null)
             {
@@ -118,12 +143,10 @@ public class MoveChan : MonoBehaviour
                 anim.SetIKPosition(AvatarIKGoal.RightHand, rightHandObj.position);
                 anim.SetIKRotation(AvatarIKGoal.RightHand, rightHandObj.rotation);
 
-
                 anim.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
                 anim.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1);
                 anim.SetIKPosition(AvatarIKGoal.LeftHand, leftHandObj.position);
                 anim.SetIKRotation(AvatarIKGoal.LeftHand, leftHandObj.rotation);
-
 
             }
         }
